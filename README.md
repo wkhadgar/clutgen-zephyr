@@ -1,10 +1,10 @@
-# CLUTGen
+# CLUTGen — Zephyr Module
 
 CLUTGen automates the creation of **Look-Up Tables** for embedded systems, converting raw ADC readings into calibrated physical units such as temperature, pressure, or distance.
 
-Given a set of calibration samples, CLUTGen fits an interpolation curve and generates a production-ready `.c`/`.h` pair with the full LUT precomputed for every possible ADC reading.
+This branch packages CLUTGen as a [Zephyr module](https://docs.zephyrproject.org/latest/develop/modules.html). LUT generation runs at configure time and produces a pair of `.c`/`.h` files that are automatically included in the application build.
 
-> For Zephyr west module usage, see the [zephyr branch](https://github.com/wkhadgar/clutgen/tree/zephyr).
+> For standalone CLI usage, see the [main branch](https://github.com/wkhadgar/clutgen/tree/main).
 
 ---
 
@@ -15,19 +15,69 @@ Given a set of calibration samples, CLUTGen fits an interpolation curve and gene
 
 ---
 
-## Installation
+## Integration
 
-From PyPI:
+Declare the module in your workspace manifest:
 
-```bash
-pip install clutgen
+```yaml
+# west.yml
+- name: clutgen
+  url: https://github.com/wkhadgar/clutgen
+  revision: zephyr
+  path: modules/clutgen
 ```
 
-From source:
+Update your west workspace and install Python dependencies into the west venv:
 
 ```bash
-pip install .
+west update
+west packages pip --install
 ```
+
+Then, in your application `CMakeLists.txt`, provide the paths to your calibration TOML files:
+
+```cmake
+clutgen_add_luts(
+    TOMLS
+        ${CMAKE_CURRENT_SOURCE_DIR}/calibration/temperature.toml
+        ${CMAKE_CURRENT_SOURCE_DIR}/calibration/pressure.toml
+)
+```
+
+`clutgen_add_luts` accepts the following parameters:
+
+| Parameter | Required | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `TOMLS` | Yes | — | One or more paths to `.toml` calibration config files |
+| `NAME` | No | `lookup_tables` | Base name for the generated `.c`/`.h` files |
+| `TARGET` | No | `app` | CMake target to attach the generated sources to |
+
+**Example with all parameters:**
+
+```cmake
+clutgen_add_luts(
+    NAME sensor_luts
+    TARGET app
+    TOMLS
+        ${CMAKE_CURRENT_SOURCE_DIR}/calibration/temperature.toml
+        ${CMAKE_CURRENT_SOURCE_DIR}/calibration/pressure.toml
+)
+```
+
+LUT generation runs automatically when CMake configures the project. The generated files are placed in the build directory and linked into the application automatically.
+
+Generated LUTs are accessible through the output header:
+
+```c
+#include "lookup_tables.h"  /* or your custom NAME.h */
+```
+
+Each configured sensor produces an array named `<n>_lut`, where `n` is the `name` field defined in its TOML:
+
+```c
+int val = temp_sensor_lut[adc_reading];
+```
+
 
 ---
 
@@ -66,6 +116,8 @@ clutgen --splines ./calibration/temperature.toml ./calibration/pressure.toml
 # Custom output directory and file name
 clutgen -o ./src/generated -n sensor_luts ./calibration/temperature.toml
 ```
+
+Generates preview plots for each configured sensor, overlaying the calibration data points against the generated LUT curve.
 
 ---
 
