@@ -1,0 +1,6 @@
+# Copyright (c) 2026, Paulo Santos (pauloxrms@gmail.com).
+# SPDX-License-Identifier: Apache-2.0
+
+name: clutgen
+build:
+  cmake: .
