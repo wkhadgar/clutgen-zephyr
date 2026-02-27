@@ -81,43 +81,13 @@ int val = temp_sensor_lut[adc_reading];
 
 ---
 
-## Usage
-
-```
-clutgen [OPTIONS] input_files...
-```
-
-| Argument | Description |
-| :--- | :--- |
-| `input_files` | One or more `.toml` configuration files |
-| `-o`, `--output-dir` | Output directory for generated files (default: `./clutgenerated`) |
-| `-n`, `--name` | Base name for the generated `.c`/`.h` files (default: `lookup_tables`) |
-| `--preview` | Open an interactive view comparing all interpolation methods before generation |
-
-**Interpolation method** (mutually exclusive, default: `--linear`):
-
-| Flag | Method |
-| :--- | :--- |
-| `-l`, `--linear` | Linear interpolation |
-| `-s`, `--splines` | Cubic spline interpolation |
-| `-p`, `--polynomial` | Best-fit polynomial up to degree 7 |
-| `-w`, `--piecewise` | Zero-order hold (step-like) |
-| `-d`, `--idw` | Inverse Distance Weighting |
-
-**Examples:**
+## Preview
 
 ```bash
-# Explore interpolation methods interactively before choosing
-clutgen --preview ./calibration/temperature.toml ./calibration/pressure.toml
-
-# Generate with splines after exploring
-clutgen --splines ./calibration/temperature.toml ./calibration/pressure.toml
-
-# Custom output directory and file name
-clutgen -o ./src/generated -n sensor_luts ./calibration/temperature.toml
+west build -t clutgen_preview
 ```
 
-Generates preview plots for each configured sensor, overlaying the calibration data points against the generated LUT curve.
+Opens an interactive figure in the browser showing all interpolation methods overlaid for each configured sensor. Use this to explore and compare methods before committing to one in the TOML.
 
 ---
 
@@ -142,7 +112,7 @@ lut_type = "int16_t"                # C type for the generated array
 samples_csv = "./data/temperature_samples.csv"  # Relative to this file, or absolute
 
 # Optional
-interpolation = "polynomial"        # Overrides the CLI interpolation method for this LUT
+interpolation = "polynomial"        # Overrides the default interpolation method for this LUT
 ```
 
 ### Interpolation Methods
@@ -159,15 +129,17 @@ interpolation = "polynomial"        # Overrides the CLI interpolation method for
 
 ## Output
 
-For each run, CLUTGen produces two files:
+CLUTGen produces two files in the build directory:
 
-* `<name>.h` — extern declarations with Doxygen comments, safe to include anywhere in the project
-* `<name>.c` — full LUT definitions, compiled once and linked
+* `<NAME>.h` — extern declarations with Doxygen comments, include this in your application sources
+* `<NAME>.c` — full LUT definitions, compiled and linked automatically
 
-Each configured sensor produces an array named `<n>_lut`, where `n` is the `name` field from the TOML:
+Each configured sensor produces an array named `<n>_lut`, where `n` is the `name` field from its TOML:
 
 ```c
-#include "lookup_tables.h"
+#include "lookup_tables.h"  /* or your custom NAME.h */
 
 int val = temp_sensor_lut[adc_reading];
 ```
+
+The ADC reading is used directly as the array index, so lookup is O(1) with no branching.

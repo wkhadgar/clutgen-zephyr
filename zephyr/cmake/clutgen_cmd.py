@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src import generator as gen
+from src.plot import show_interactive_plot
 
 
 def parse_args():
@@ -19,7 +20,6 @@ def parse_args():
         "-o",
         "--output-dir",
         type=Path,
-        required=True,
         help="Directory for generated .c/.h files",
     )
     p.add_argument(
@@ -29,7 +29,7 @@ def parse_args():
     p.add_argument(
         "--preview",
         action="store_true",
-        help="Open interactive plot preview after generation",
+        help="Open interactive view comparing all interpolation methods",
     )
     return p.parse_args()
 
@@ -40,18 +40,17 @@ def main():
     """
     args = parse_args()
 
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-
-    gen.generate(
-        args.tomls,
-        args.output_dir,
-        args.name,
-        gen.GenMethod.LINEAR,
-        args.preview,
-    )
-
     if args.preview:
-        print(f"-- CLUTGen preview plots saved to {args.output_dir / 'preview'}")
+        configs = gen.parse_configs(args.tomls, gen.GenMethod.LINEAR)
+        show_interactive_plot(configs)
+    else:
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+        gen.generate(
+            args.tomls,
+            args.output_dir,
+            args.name,
+            gen.GenMethod.LINEAR,
+        )
 
 
 if __name__ == "__main__":
