@@ -1,0 +1,3 @@
+[submodule "clutgen"]
+	path = clutgen
+	url = https://github.com/wkhadgar/clutgen

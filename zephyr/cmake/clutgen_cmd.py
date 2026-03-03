@@ -2,7 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "clutgen"))
 
 from src import generator as gen
 from src.plot import show_interactive_plot

@@ -4,7 +4,7 @@ CLUTGen automates the creation of **Look-Up Tables** for embedded systems, conve
 
 This branch packages CLUTGen as a [Zephyr module](https://docs.zephyrproject.org/latest/develop/modules.html). LUT generation runs at configure time and produces a pair of `.c`/`.h` files that are automatically included in the application build.
 
-> For standalone CLI usage, see the [main branch](https://github.com/wkhadgar/clutgen/tree/main).
+> For standalone CLI usage, see the [cli tool](https://github.com/wkhadgar/clutgen).
 
 ---
 
@@ -22,9 +22,10 @@ Declare the module in your workspace manifest:
 ```yaml
 # west.yml
 - name: clutgen
-  url: https://github.com/wkhadgar/clutgen
+  url: https://github.com/wkhadgar/clutgen-zephyr
   revision: zephyr
   path: modules/clutgen
+  submodules: true
 ```
 
 Update your west workspace and install Python dependencies into the west venv:

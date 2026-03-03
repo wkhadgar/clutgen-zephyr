@@ -1,6 +1,0 @@
-name = "input_voltages"
-description = "input voltages (in Volts x 100)"
-lut_type = "uint16_t"
-table_resolution_bits = 12
-
-samples_csv = "./data/input_voltage.csv"
