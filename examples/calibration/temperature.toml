@@ -1,8 +1,0 @@
-name = "temperatures"
-description = "temperatures (in Celsius)"
-lut_type = "int16_t"
-table_resolution_bits = 12
-
-samples_csv = "./data/temperature.csv"
-interpolation = "splines"              # Force a given interpolation method.
-preview = true                         # Force/stop preview plot generation.
