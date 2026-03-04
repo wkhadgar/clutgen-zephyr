@@ -88,6 +88,9 @@ int val = temp_sensor_lut[adc_reading];
 west build -t clutgen_plot
 ```
 
+> [!NOTE]
+> If the build target is not available, make sure the project `CMakeLists.txt` is calling `clutgen_add_luts`, and cmake has been loaded correctly afterwards.
+
 Opens an interactive figure in the browser showing all interpolation methods overlaid for each configured sensor. Use this to explore and compare methods before committing to one in the TOML.
 
 ![CLUTGen interactive preview showing all interpolation methods overlaid](doc/img/clutgen_plot_overview.png)
